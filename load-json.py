@@ -40,8 +40,6 @@ def json2mongo(input_file, collection):
 
 def main():
     create_collections()
-    for i in client.list_databases():
-    	print(i)
 
 
 if __name__ == "__main__":
