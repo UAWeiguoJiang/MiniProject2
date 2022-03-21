@@ -35,7 +35,7 @@ def tsv2json(input_file,output_file):
           
         # we will append all the individual dictionaries into list 
         # and dump into file.
-        json.dump(d, op)
+        json.dump(d, op)    # json.dump(d, op, indent=4) for prettier json files
         op.write('\n')
 
 
