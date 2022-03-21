@@ -3,7 +3,7 @@ import json
 def tsv2json(input_file,output_file):
     file = open(input_file, 'r')
     a = file.readline()
-      
+    op = open(output_file, "a")
     # The first line consist of headings of the record 
     # so we will store it in an array and move to 
     # next line in input_file.
@@ -35,7 +35,6 @@ def tsv2json(input_file,output_file):
           
         # we will append all the individual dictionaries into list 
         # and dump into file.
-        op = open(output_file, "a")
         json.dump(d, op)
         op.write('\n')
 
