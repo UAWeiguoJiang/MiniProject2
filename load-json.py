@@ -31,15 +31,19 @@ def create_collections():
 
 
 def json2mongo(input_file, collection):
-    with open(input_file) as f:
-        file_data = json.load(f)
-        collection.insert_many(file_data)
+    with open(input_file, 'r') as f:
+        for row in f:
+            r = json.loads(row)
+            collection.insert_one(r)
 
     return
 
 
 def main():
     create_collections()
+
+    for i in client.list_databases():
+        print(i)
 
 
 if __name__ == "__main__":

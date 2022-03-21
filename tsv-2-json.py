@@ -1,7 +1,6 @@
 import json
 
 def tsv2json(input_file,output_file):
-    arr = []
     file = open(input_file, 'r')
     a = file.readline()
       
@@ -15,30 +14,30 @@ def tsv2json(input_file,output_file):
             # Convert each row into dictionary with keys as titles
             f = f.strip()
             f = f.strip('\\N')
-            # if f == '\n' or '': will make null in json into ''
+            # if f == '\n' or '': will make null in json into '' / empty string
             if f == '':
                 d[t] = None
-            elif t == 'primaryProfession':
-                d[t] = f.split(',')
-            elif t == 'knownForTitles':
-                d[t] = f.split(',')
-            elif t == 'genres':
+            elif t == 'primaryProfession' or t == 'knownForTitles' or t == 'genres':
                 d[t] = f.split(',')
             elif t == 'characters':
                 l = list()
                 for i in f.strip('][').split(','):
                     l.append(i.strip('\"\"'))
                 d[t] = l
+            elif t == 'birthYear' or t == 'deathYear' or t == 'startYear' or t == 'endYear' or t == 'runtimeMinutes' or t == 'ordering' or t == 'numVotes':
+                d[t] = int(f)
+            elif t == 'averageRating':
+                d[t] = float(f)
             else:
                 d[t] = f
               
         # we will use strip to remove '\n'.
-        arr.append(d)
           
         # we will append all the individual dictionaries into list 
         # and dump into file.
-    with open(output_file, 'w', encoding='utf-8') as output_file:
-        output_file.write(json.dumps(arr, indent=4))
+        op = open(output_file, "a")
+        json.dump(d, op)
+        op.write('\n')
 
 
 def main():
