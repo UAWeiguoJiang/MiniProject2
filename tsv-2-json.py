@@ -1,9 +1,9 @@
 import json
 
 def tsv2json(input_file,output_file):
+    arr = []
     file = open(input_file, 'r')
     a = file.readline()
-    op = open(output_file, "a")
     # The first line consist of headings of the record 
     # so we will store it in an array and move to 
     # next line in input_file.
@@ -24,19 +24,19 @@ def tsv2json(input_file,output_file):
                 for i in f.strip('][').split(','):
                     l.append(i.strip('\"\"'))
                 d[t] = l
-            elif t == 'birthYear' or t == 'deathYear' or t == 'startYear' or t == 'endYear' or t == 'runtimeMinutes' or t == 'ordering' or t == 'numVotes':
+            elif t == 'runtimeMinutes' or t == 'ordering' or t == 'numVotes':
                 d[t] = int(f)
             elif t == 'averageRating':
                 d[t] = float(f)
             else:
                 d[t] = f
+
+        arr.append(d)
+    
+    with open(output_file, 'w', encoding='utf-8') as op:
+        op.write(json.dumps(arr, indent=4))
               
-        # we will use strip to remove '\n'.
-          
-        # we will append all the individual dictionaries into list 
-        # and dump into file.
-        json.dump(d, op)    # json.dump(d, op, indent=4) for prettier json files
-        op.write('\n')
+        
 
 
 def main():
