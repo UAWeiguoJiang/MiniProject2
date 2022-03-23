@@ -32,9 +32,8 @@ def create_collections():
 
 def json2mongo(input_file, collection):
     with open(input_file, 'r') as f:
-        for row in f:
-            r = json.loads(row)
-            collection.insert_one(r)
+        data = json.load(f)
+        collection.insert_many(data)
 
     return
 
