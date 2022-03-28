@@ -12,10 +12,6 @@ title_basics = db['title_basics']
 title_principals = db['title_principals']
 title_ratings = db['title_ratings']
 
-c = title_basics.find({'primaryTitle': None})
-for i in c:
-    print(i)
-    break
 
 def main_menu():
     """
