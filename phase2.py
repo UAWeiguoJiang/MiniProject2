@@ -1,3 +1,4 @@
+import pymongo
 from pprint import pprint
 from pymongo import MongoClient
 
@@ -11,9 +12,22 @@ title_basics = db['title_basics']
 title_principals = db['title_principals']
 title_ratings = db['title_ratings']
 
+c = title_basics.find({'primaryTitle': None})
+for i in c:
+    print(i)
+    break
+
 def main_menu():
+    """
+        User interface of document store, allows users to perform various task
+        or gracefully exit the program.
+
+        Arguments: None
+
+        Returns: None
+    """
     while True:
-        print('Main menu:')
+        print('Main menu:')     # provide options
         print('1: Search for titles')
         print('2: Search for genres')
         print('3: Search for cast/crew members')
@@ -31,10 +45,11 @@ def main_menu():
             add_a_movie()
         elif op == '5':
             add_a_member()
-        elif op.upper() == 'X':
+        elif op.upper() == 'X':     # case insensitive
             return
-        else:
+        else:       # error checking
             print('Invalid option, please try again!')
+            print('\n')
 
 
 def search_for_movies():
@@ -244,14 +259,24 @@ def search_for_genres():
     title_ratings.drop_index("*")
     title_principals.drop_index("*")
     name_basics.drop_index("*")
+
     return
 
 
 def search_for_members():
-    name = input('Cast/crew member name: ')
+    """
+        Given a cast/crew member name and see all professions of the member and for each title
+        the member had a job, the primary title, the job and character (if any). Matching of
+        the member name is case-insensitive.
+
+        Arguments: None
+
+        Returns: None
+    """
+    name = input('Cast/crew member name: ')     # ask for cast/crew member name
     c = name_basics.aggregate([
             {
-                '$project': {
+                '$project': {       # project necessary fields
                     'nconst': 1,
                     'primaryName': {'$toUpper': '$primaryName'},
                     'primaryProfession': 1,
@@ -260,13 +285,13 @@ def search_for_members():
             },
 
             {
-                '$match': {
+                '$match': {     # case insensitive name matching
                     'primaryName': name.upper()
                 }
             },
 
             {
-                '$lookup': {
+                '$lookup': {    # join with title_principals to find all movies in which the member participates
                     'from': 'title_principals',
                     'localField': 'nconst',
                     'foreignField': 'nconst',
@@ -275,11 +300,11 @@ def search_for_members():
             },
 
             {
-                '$unwind': '$principals'
+                '$unwind': '$principals'    # unwind matches into separate dictionaries
             },
 
             {
-                '$project': {
+                '$project': {       # project necessary fields and flatten out dictionary
                     'primaryName': 1,
                     'primaryProfession': 1,
                     'nconst': '$principals.nconst',
@@ -290,7 +315,7 @@ def search_for_members():
             },
 
             {
-                '$lookup': {
+                '$lookup': {        # join with title_basics to find movies' primary names
                     'from': 'title_basics',
                     'localField': 'tconst',
                     'foreignField': 'tconst',
@@ -303,7 +328,7 @@ def search_for_members():
             },
 
             {
-                '$project': {
+                '$project': {       # project necessary fields
                     '_id': 0,
                     'primaryName': 1,
                     'primaryProfession': 1,
@@ -316,7 +341,7 @@ def search_for_members():
             },
 
             {
-                '$match': {
+                '$match': {     # filter out dictionaries with job and characters being None at the same time
                     '$or': [
                         {
                             'job': {'$ne': None}
@@ -331,16 +356,39 @@ def search_for_members():
         ]
     )
 
-    r = [i for i in c]
-    if r == []:
+    r = [i for i in c]      # retrieve all results and store it in a list
+    print('\n')
+    if r == []:     # account for cases where no result is returned
         print('No matching cast/crew member.')
-    else:
+    else:       # output formatting
         cnt = 0
         for i in r:
-            pprint(i)
+            print('Result {0}'.format(cnt))
+
+            print('nconst: {0}'.format(i['nconst']))
+            print('name: {0}'.format(i['primaryName'].title()))
+            if i['primaryProfession'] == None:
+                print('primaryProfession: None')
+            else:
+                print('primaryProfession: {0}'.format(', '.join(i['primaryProfession'])))
+            print('tconst: {0}'.format(i['tconst']))
+            if i['primaryTitle'] == None:
+                print('primary title: None')
+            else:
+                print('primary title: {0}'.format(i['primaryTitle']))
+            if i['job'] == None:
+                print('job: None')
+            else:
+                print('job: {0}'.format(i['job']))
+            if i['characters'] == None:
+                print('characters: None')
+            else:
+                print('characters: {0}'.format(', '.join(i['characters'])))
+
             print('\n')
             cnt += 1
-        print(cnt)
+
+    return
 
 
 def add_a_movie():
@@ -353,6 +401,8 @@ def add_a_member():
 
 def main():
     main_menu()
+
+    return
 
 
 if __name__ == '__main__':
