@@ -356,6 +356,7 @@ def search_for_members():
     print('\n')
     if r == []:     # account for cases where no result is returned
         print('No matching cast/crew member.')
+        print('\n')
     else:       # output formatting
         cnt = 0
         for i in r:
