@@ -371,7 +371,9 @@ def search_for_members():
 
         Returns: None
     """
-    name = input('Cast/crew member name: ').title()     # ask for cast/crew member name
+    name = input('Cast/crew member name: ')     # ask for cast/crew member name
+    name = '^' + name + '$'     # regex exact match
+
     c = name_basics.aggregate([
             {'$match': {'primaryName': {'$regex': name, '$options': 'i'}}},     # case insensitive match
 
