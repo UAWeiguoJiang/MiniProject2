@@ -372,7 +372,8 @@ def search_for_members():
             {
                 '$project': {       # project necessary fields
                     'nconst': 1,
-                    'primaryName': {'$toUpper': '$primaryName'},
+                    # 'primaryName': {'$toUpper': '$primaryName'},
+                    'primaryName': 1,
                     'primaryProfession': 1,
                     'knownForTitles': 1
                 }
