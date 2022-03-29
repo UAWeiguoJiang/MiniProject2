@@ -57,7 +57,12 @@ def search_for_movies():
     and their charcters (if any)
     """    
 
-    # create indexes
+     # drop all index before start
+    title_basics.drop_index("*") 
+    title_ratings.drop_index("*")
+    title_principals.drop_index("*")
+    name_basics.drop_index("*")    
+    
     title_ratings.create_index([("nconst", pymongo.DESCENDING)])
     title_basics.create_index([("nconst", pymongo.DESCENDING)])
     title_principals.create_index([("nconst", pymongo.DESCENDING)])
@@ -71,8 +76,7 @@ def search_for_movies():
     
     # turn keywords into specific string for full text search
     for i in range(len(keywordsList)):
-        keywordsList[i] = '\"' + keywordsList[i] + '\"'
-    
+        keywordsList[i] = '\"' + keywordsList[i] + '\"'    
     keywordsForTitle = ' '.join(keywordsList)
     
     # create text index for primaryTitle field, startYear
@@ -82,6 +86,8 @@ def search_for_movies():
     results = title_basics.find({"$text": {"$search": keywordsForTitle}})
     results = list(results)
             
+    resultString = ''    
+    
     if results == []:
         print("No available results, returning to Main Menu.")
         # drop all index at the end
@@ -90,14 +96,74 @@ def search_for_movies():
         title_principals.drop_index("*")
         name_basics.drop_index("*")        
         return
+    
     else:
         # print each result
         for i in range(len(results)):
-            print(str(i)+":", results[i])    
-    
+            index = 'Result ' + str(i)
+            tconstStr = ''
+            titleTypeStr = ''
+            primarytitleStr = ''
+            originaltitleStr = ''
+            isAdultStr = ''
+            startYearStr = ''
+            endYearStr = ''
+            runtimeStr = ''
+            genresStr = ''
+            
+            # make sure every field is not null
+            if (results[i]['tconst'] == None):
+                tconstStr = 'N/A'
+            else:
+                tconstStr = results[i]['tconst']
+            if (results[i]['titleType'] == None):
+                titleTypeStr = 'N/A'
+            else:
+                titleTypeStr = results[i]['titleType']
+            if (results[i]['primaryTitle'] == None):
+                primarytitleStr = 'N/A'
+            else:
+                primarytitleStr = results[i]['primaryTitle']
+            if (results[i]['originalTitle'] == None):
+                originaltitleStr = 'N/A'
+            else:
+                originaltitleStr = results[i]['originalTitle']
+            if (results[i]['isAdult'] == None):
+                isAdultStr = 'N/A'
+            else:
+                isAdultStr = results[i]['isAdult']
+            if (results[i]['startYear'] == None):
+                startYearStr = 'N/A'
+            else:
+                startYearStr = results[i]['startYear']
+            if (results[i]['endYear'] == None):
+                endYearStr = 'N/A'
+            else:
+                endYearStr = results[i]['endYear']
+            if (results[i]['runtimeMinutes'] == None):
+                runtimeStr = 'N/A'
+            else:
+                runtimeStr = str(results[i]['runtimeMinutes'])
+            if (results[i]['genres'] == None):
+                genresStr = 'N/A'
+            else:
+                genresStr = ', '.join(results[i]['genres'])
+            
+            resultString += (index + '\n'
+                             'tconst: ' + tconstStr + '\n'
+                             'titleType: ' + titleTypeStr + '\n'
+                             'primaryTitle: ' + primarytitleStr + '\n'
+                             'originalTitle: ' + originaltitleStr + '\n'
+                             'isAdult: ' + isAdultStr + '\n'
+                             'startYear: ' + startYearStr + '\n'
+                             'endYear: ' + endYearStr + '\n'
+                             'runtimeMinutes: ' + runtimeStr + '\n'
+                             'genres: ' + genresStr + '\n') + '\n'
+    print(resultString)
+        
     # prompt user to enter a selection
     while True:
-        selection = input("Select a movie from above OR any other key to exit: ") 
+        selection = input("Select a movie from the 'result' field OR any other key to exit: ") 
         
         if selection.isnumeric():
             selection = int(selection)
@@ -128,43 +194,51 @@ def search_for_movies():
          "localField": "nconst",
          "foreignField": "nconst",
          "as": "names"}},
-        {"$project": {"tconst":1, "characters":1, "names":1}}
+        {"$project": {"tconst":1, "characters":1, "names":1, "job":1}}
     ]
     
     aggregatedResults = list(title_principals.aggregate(stages))
     
-#    print(ratings)
-#    for result in aggregatedResults:
-#        print(result)    
+    aggregatedResultString = ''
+    vote = '0'
+    rating = '0.0'
     
-    # setup strings for rating and number of votes
-    rating = 'RATING: '
-    numVotes = 'NUMBER OF VOTES: '
-    rating += str(ratings[0]["averageRating"])
-    numVotes += str(ratings[0]["numVotes"])
+    if (ratings != []):
+        rating = str(ratings[0]['averageRating'])
+        votes = str(ratings[0]['numVotes'])
     
-    # setup strings for characters and casts/crew members
-    pairs = ''
-    
-    for i in range(len(aggregatedResults)):
-        char = aggregatedResults[i]['characters']
-        name = aggregatedResults[i]['names']
-        if char != None:
-            char = '[' + ', '.join(char) + ']'
-        else:
-            char = 'N/A' + ' (crew)'
-        if name != None:
-            crew = name[0]['primaryName']
-        pairs += chr(9) + crew + ': ' + char + '\n'
-    
-    print("For selection: ", '\n', titleDic)
-    print(rating)
-    print(numVotes)
-    print('CASTS/CREW MEMBERS: [CHARACTERS]')
-    if (pairs == ''):
-        print("NO CAST/CREW MEMBERS")
+    # setup strings for cast/crew member
+    if aggregatedResults == []:
+        aggregatedResultString = 'No cast/crew member to display.'
     else:
-        print(pairs)
+        for i in range(len(aggregatedResults)):
+            characterStr = ''
+            jobStr = ''
+            primaryNameStr = ''
+            # make sure fields are not None
+            if(aggregatedResults[i]['job'] == None):
+                jobStr = 'N/A'
+            else:
+                jobStr = aggregatedResults[i]['job']
+            if(aggregatedResults[i]['characters'] == None):
+                characterStr = 'N/A'
+            else:
+                characterStr = ', '.join(aggregatedResults[i]['characters'])
+            if(aggregatedResults[i]['names'] == None):
+                primaryNameStr = 'N/A'
+            else:
+                if (aggregatedResults[i]['names'][0]['primaryName'] == None):
+                    primaryNameStr = 'N/A'
+                else:
+                    primaryNameStr = aggregatedResults[i]['names'][0]['primaryName']
+                    
+            crewStr = (primaryNameStr + ' ------ ' + 'job: ' + jobStr + ' || ' + 'characters: ' + characterStr + '\n')
+            aggregatedResultString += crewStr
+        
+        
+    print('\n' + 'primaryTitle: ' + titleDic['primaryTitle'])
+    print('rating: ' + rating + ' || ' + 'votes: ' + vote)
+    print(aggregatedResultString)
     
     # drop all index at the end
     title_basics.drop_index("*") 
@@ -180,7 +254,12 @@ def search_for_genres():
     they will be able see all the title of movie
     under that genre
     '''
-    # create indexes
+    # drop all index before start
+    title_basics.drop_index("*") 
+    title_ratings.drop_index("*")
+    title_principals.drop_index("*")
+    name_basics.drop_index("*")    
+    
     title_ratings.create_index([("numVotes", pymongo.DESCENDING)])
     title_ratings.create_index([("avgRating", pymongo.DESCENDING)])
     title_ratings.create_index([("tconst", pymongo.DESCENDING)])
@@ -190,7 +269,7 @@ def search_for_genres():
     # create text index for genres
     title_basics.create_index([("genres", "text")])
     
-    # get gere
+    # get genre
     genre = ''
     while genre == '':
         genre = input('Enter a genre: ')
@@ -216,8 +295,11 @@ def search_for_genres():
           "foreignField": "tconst",
           "as": "ratings"}},
         {"$sort": {"ratings.averageRating": -1}},
-        {"$match": {"ratings.numVotes": {"$gte": vote}}},        
-        {"$project": {"tconst":1, "ratings.averageRating":1, "ratings.numVotes":1, "genres":1, "primaryTitle":1, "originalTitle":1}}
+        {"$match": {"ratings.numVotes": {"$gte": vote}}}, 
+        {"$project": {"tconst":1, 
+                      "ratings.averageRating":1, 
+                      "ratings.numVotes":1, 
+                      "genres":1, "primaryTitle":1, "originalTitle":1}}
     ]
     
     results = list(title_basics.aggregate(stages))
@@ -231,23 +313,38 @@ def search_for_genres():
         name_basics.drop_index("*")        
         return;
     
-    displayString = ''
+    displayString = '\n'
 
     for i in range(len(results)):
-        primaryTitle = results[i]["primaryTitle"]
-        originalTitle = results[i]["originalTitle"]
-        pair = ''
-        if primaryTitle != None:
-            pair += "PRIMARY TITLE: " + '"' + primaryTitle + '"' + '\n'
+        primaryTitle = ''
+        originalTitle = ''
+        rating = ''
+        vote = ''
+        genres = ', '.join(results[i]['genres'])
+        
+        if primaryTitle == None:
+            primaryTitle = 'N/A'
         else:
-            pair += "PRIMARY TITLE: " + 'N/A' + '\n'
-        if originalTitle != None:
-            pair += chr(9) + "ORIGINAL TITLE: " + '"' + originalTitle + '"'
+            primaryTitle = results[i]["primaryTitle"]
+        if originalTitle == None:
+            originalTitle = 'N/A'
         else:
-            pair += chr(9) + 'ORIGINAL TITLE: ' + "N/A"
-        displayString += pair + '\n'
+            originalTitle = results[i]["originalTitle"]
+
+        if results[i]['ratings'] == []:
+            rating = 'N/A'
+            vote = 'N/A'
+        else:
+            rating = results[i]['ratings'][0]['averageRating']
+            vote = results[i]['ratings'][0]['numVotes']
+            
+        string = ('primaryTitle: ' + primaryTitle + '\n'
+                  'originalTitle: ' + originalTitle + '\n' +
+                  'genres: ' + genres + '\n' +
+                  'rating: ' + str(rating) + '\n'
+                  'votes: ' + str(vote) + '\n') + '\n'
+        displayString += string
     
-    print("--------TITLES--------")
     print(displayString)
     
     # drop all index at the end
@@ -269,6 +366,7 @@ def search_for_members():
 
         Returns: None
     """
+
     name = input('Cast/crew member name: ')     # ask for cast/crew member name
     c = name_basics.aggregate([
             {
@@ -335,20 +433,51 @@ def search_for_members():
                     'primaryTitle': '$basics.primaryTitle'
                 }
             },
+            
+            {
+                '$group': {
+                    '_id': '$nconst',
+                    'primaryName': {'$first': '$primaryName'},
+                    'primaryProfession': {'$first': '$primaryProfession'},
+                    'movies': {'$push': {'$cond': {
+                                'if': {'$or':[
+                                    {'$ne': ['$job', None]},
+                                    {'$ne': ['$characters', None]}
+                                ]
+                            },
+                                'then': {
+                                    'tconst': '$tconst',
+                                    'primaryTitle': '$primaryTitle',
+                                    'job': '$job',
+                                    'characters': '$characters'
+                                },
+                                'else': '$$REMOVE'
+                            }
+                        }
+                    }
+                }
+            },
 
-            # {
-            #     '$match': {     # filter out dictionaries with job and characters being None at the same time
-            #         '$or': [
-            #             {
-            #                 'job': {'$ne': None}
-            #             },
+            {
+                '$unwind': {
+                    'path': '$movies',
+                    'preserveNullAndEmptyArrays': True
+                }
+            },
 
-            #             {
-            #                 'characters': {'$ne': None}
-            #             }
-            #         ]
-            #     }
-            # }
+            {
+                '$project': {
+                    '_id': 0,
+                    'nconst': '$_id',
+                    'primaryName': 1,
+                    'primaryProfession': 1,
+                    'tconst': '$movies.tconst',
+                    'primaryTitle': '$movies.primaryTitle',
+                    'job': '$movies.job',
+                    'characters': '$movies.characters'
+                }
+            }
+
         ]
     )
 
@@ -365,11 +494,11 @@ def search_for_members():
             print('nconst: {0}'.format(i['nconst']))
             print('name: {0}'.format(i['primaryName'].title()))
             if i['primaryProfession'] == None:
-                print('primaryProfession: None')
+                print('primary profession: None')
             else:
-                print('primaryProfession: {0}'.format(', '.join(i['primaryProfession'])))
+                print('primary profession: {0}'.format(', '.join(i['primaryProfession'])))
 
-            if i['job'] != None or i['characters'] != None:     # we print the following fields only if both are not None
+            if 'job' in i.keys() and 'characters' in i.keys():     # we print the following fields only if both are not None
                 print('tconst: {0}'.format(i['tconst']))
                 if i['primaryTitle'] == None:
                     print('primary title: None')
