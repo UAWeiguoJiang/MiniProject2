@@ -63,10 +63,10 @@ def search_for_movies():
     title_principals.drop_index("*")
     name_basics.drop_index("*")    
     
-    title_ratings.create_index([("nconst", pymongo.DESCENDING)])
-    title_basics.create_index([("nconst", pymongo.DESCENDING)])
-    title_principals.create_index([("nconst", pymongo.DESCENDING)])
-    name_basics.create_index([("nconst", pymongo.DESCENDING)])
+    # title_ratings.create_index([("nconst", pymongo.DESCENDING)])
+    # title_basics.create_index([("nconst", pymongo.DESCENDING)])
+    # title_principals.create_index([("nconst", pymongo.DESCENDING)])
+    # name_basics.create_index([("nconst", pymongo.DESCENDING)])
     
     keywords = ''
     keywordsList = []
@@ -367,7 +367,7 @@ def search_for_members():
 
         Returns: None
     """
-    name = input('Cast/crew member name: ')     # ask for cast/crew member name
+    name = input('Cast/crew member name: ').title()     # ask for cast/crew member name
     c = name_basics.aggregate([
             {
                 '$project': {       # project necessary fields
@@ -380,7 +380,7 @@ def search_for_members():
 
             {
                 '$match': {     # case insensitive name matching
-                    'primaryName': name.upper()
+                    'primaryName': name
                 }
             },
 
