@@ -367,7 +367,6 @@ def search_for_members():
 
         Returns: None
     """
-
     name = input('Cast/crew member name: ')     # ask for cast/crew member name
     c = name_basics.aggregate([
             {
@@ -499,7 +498,7 @@ def search_for_members():
             else:
                 print('primary profession: {0}'.format(', '.join(i['primaryProfession'])))
 
-            if 'job' in i.keys() and 'characters' in i.keys():     # we print the following fields only if both are not None
+            if 'job' in i.keys() and 'characters' in i.keys():     # check if 'job' and 'characters' fields exist
                 print('tconst: {0}'.format(i['tconst']))
                 if i['primaryTitle'] == None:
                     print('primary title: None')
