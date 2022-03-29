@@ -437,12 +437,12 @@ def search_for_members():
             {
                 '$group': {     # group movies into the corresponding crew/cast
                     '_id': '$nconst',
-                    'primaryName': {'$first': '$primaryName'},
-                    'primaryProfession': {'$first': '$primaryProfession'},
+                    'primaryName': {'$last': '$primaryName'},
+                    'primaryProfession': {'$last': '$primaryProfession'},
                     'movies': {'$push': {'$cond': {
                                 'if': {'$or':[      # check whether both job and characters are None
-                                    {'$ne': ['$job', None]},
-                                    {'$ne': ['$characters', None]}
+                                    {'$ne': ['$characters', None]},
+                                    {'$ne': ['$job', None]}
                                 ]
                             },
                                 'then': {
