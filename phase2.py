@@ -520,11 +520,82 @@ def search_for_members():
 
 
 def add_a_movie():
-    pass
+    while(True):
+        uniqueID = input("Please input a unique ID: ")
+        #query to make sure unique
+        query = title_basics.find({"tconst": uniqueID})
+        if(len(list(query)))!=0:
+            print("Error: Not uniqueID. Enter in something different please. :)")
+        else:
+            break 
+
+
+    title = input("Please input a title: ")
+    #don't think any conditions are needed for title
+
+    while(True):
+        startYear = input("Please input in a start year: ")
+        if(startYear.isnumeric()):
+            break
+        else:
+            print("Error: Year not numeric, consider trying a number.")
+
+
+ 
+    while(True):
+        runtime = input("Please input in a runtime (In Minutes!): ")
+        if(runtime.isnumeric()):
+            break
+        else:
+            print("Error: Runtime not numeric, consider trying a number.")
+    
+    genres = input("Please enter in a list of genres. (Seperate different genres by comma, no spaces between commas.): ")
+    listGenres = genres.split(",") #don't think its actually stored as list?
+
+    #and isAdult and endYear are set to Null (denoted as \N).
+    #add row to title_basics
+    d = {"tconst": uniqueID, "titleType": "movie", "primaryTitle": title, "originalTitle": title, "isAdult": None, "startYear": startYear, "endYear": None, "runtimeMinutes": runtime, "genres": listGenres}
+    x = title_basics.insert_one(d)
+    #print(x)
+
+    return
 
 
 def add_a_member():
-    pass
+    while(True):
+        existingCast = input("Please input the existing ID of a cast or crew member: ")
+        #query to make sure unique
+        query = name_basics.find({"nconst": existingCast})
+        if(len(list(query)))==0:
+            print("Error: Cast member does not exist. Please try again. :)")
+        else:
+            break 
+
+    while(True):
+        existingTitle = input("Please input the existing titleID of a movie: ")
+        #query to make sure unique
+        query = title_basics.find({"tconst": existingTitle})
+        if(len(list(query)))==0:
+            print("Error:  TitleID does not exist. Please try again. :)")
+        else:
+            break 
+
+    category = input("Please enter in a movie category: ")
+    ordering = 0 #make it so that its the max ordering listed for the title plus one
+    doc = title_principals.find({"tconst": existingTitle}).sort("ordering", -1).limit(1)
+    for x in doc:
+        ordering = (x["ordering"] + 1)
+    #print(ordering)
+    if(ordering == 0):
+        print("Title not detected in title_principals, ordering shall be 1...")
+        ordering = 1
+        
+    d = {"tconst": existingTitle, "ordering": ordering, "nconst": existingCast, "category": category, "job": None, "charcters": None}
+    x = title_principals.insert_one(d)
+    #print(x)
+    #print("If it made it this far without crashing then :)))")
+
+    return
 
 
 def main():
