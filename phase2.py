@@ -14,7 +14,6 @@ title_ratings = db['title_ratings']
 
 
 def main_menu():
-    print(title_basics.index_information())
     """
         User interface of document store, allows users to perform various task
         or gracefully exit the program.
