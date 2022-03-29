@@ -245,6 +245,7 @@ def search_for_movies():
     title_ratings.drop_index("*")
     title_principals.drop_index("*")
     name_basics.drop_index("*")
+
     return
 
 
@@ -435,23 +436,23 @@ def search_for_members():
             },
             
             {
-                '$group': {
+                '$group': {     # group movies into the corresponding crew/cast
                     '_id': '$nconst',
                     'primaryName': {'$first': '$primaryName'},
                     'primaryProfession': {'$first': '$primaryProfession'},
                     'movies': {'$push': {'$cond': {
-                                'if': {'$or':[
+                                'if': {'$or':[      # check whether both job and characters are None
                                     {'$ne': ['$job', None]},
                                     {'$ne': ['$characters', None]}
                                 ]
                             },
                                 'then': {
-                                    'tconst': '$tconst',
+                                    'tconst': '$tconst',    # field projections
                                     'primaryTitle': '$primaryTitle',
                                     'job': '$job',
                                     'characters': '$characters'
                                 },
-                                'else': '$$REMOVE'
+                                'else': '$$REMOVE'  # if both are None, we do not include the corresponding movie
                             }
                         }
                     }
@@ -459,14 +460,14 @@ def search_for_members():
             },
 
             {
-                '$unwind': {
+                '$unwind': {    # unwind movies list, preserve empty list
                     'path': '$movies',
                     'preserveNullAndEmptyArrays': True
                 }
             },
 
             {
-                '$project': {
+                '$project': {       # project necessary fields
                     '_id': 0,
                     'nconst': '$_id',
                     'primaryName': 1,
