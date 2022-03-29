@@ -22,7 +22,7 @@ def tsv2json(input_file,output_file):
         for t, f in zip(titles, line.split('\t')):  # pair up field names and values
 
             f = f.strip()   # strip extra spaces and newlines
-            f = f.strip('\\N')
+            f = f.rstrip('\\N')
 
             if f == '':     # if empty string, convert to None / null in json
                 d[t] = None
