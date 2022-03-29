@@ -439,20 +439,23 @@ def search_for_members():
                     '_id': '$nconst',
                     'primaryName': {'$last': '$primaryName'},
                     'primaryProfession': {'$last': '$primaryProfession'},
-                    'movies': {'$push': {'$cond': {
-                                'if': {'$or':[      # check whether both job and characters are None
-                                    {'$ne': ['$characters', None]},
-                                    {'$ne': ['$job', None]}
-                                ]
-                            },
-                                'then': {
-                                    'tconst': '$tconst',    # field projections
-                                    'primaryTitle': '$primaryTitle',
-                                    'job': '$job',
-                                    'characters': '$characters'
-                                },
-                                'else': '$$REMOVE'  # if both are None, we do not include the corresponding movie
-                            }
+                    'movies': {'$push': {'$cond': [
+                                    {'$or':
+                                        [      # check whether both job and characters are None
+                                            {'$ne': ['$characters', None]},
+                                            {'$ne': ['$job', None]}
+                                        ]
+                                    },
+
+                                    {
+                                        'tconst': '$tconst',    # field projections
+                                        'primaryTitle': '$primaryTitle',
+                                        'job': '$job',
+                                        'characters': '$characters'
+                                    },
+
+                                    '$$REMOVE'  # if both are None, we do not include the corresponding movie
+                            ]
                         }
                     }
                 }
