@@ -32,7 +32,7 @@ def main_menu():
         print('X: exit')
         op = input('You would like to: ')
         if op == '1':
-            search_for_movies()
+            search_for_titles()
         elif op == '2':
             search_for_genres()
         elif op == '3':
@@ -48,7 +48,7 @@ def main_menu():
             print('\n')
 
 
-def search_for_movies():
+def search_for_titles():
 
     """
     get keywords from user
