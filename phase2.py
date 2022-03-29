@@ -14,6 +14,7 @@ title_ratings = db['title_ratings']
 
 
 def main_menu():
+    print(title_basics.index_information())
     """
         User interface of document store, allows users to perform various task
         or gracefully exit the program.
@@ -57,11 +58,11 @@ def search_for_movies():
     and their charcters (if any)
     """    
 
-     # drop all index before start
-    title_basics.drop_index("*") 
-    title_ratings.drop_index("*")
-    title_principals.drop_index("*")
-    name_basics.drop_index("*")    
+    # drop all index before start
+    # title_basics.drop_index("*") 
+    # title_ratings.drop_index("*")
+    # title_principals.drop_index("*")
+    # name_basics.drop_index("*")  
     
     # title_ratings.create_index([("nconst", pymongo.DESCENDING)])
     # title_basics.create_index([("nconst", pymongo.DESCENDING)])
@@ -82,19 +83,21 @@ def search_for_movies():
     # create text index for primaryTitle field, startYear
     title_basics.create_index([('primaryTitle', 'text'), ('startYear', 'text')])
     
-    #results from primaryTitle field
+    # results from primaryTitle field
     results = title_basics.find({"$text": {"$search": keywordsForTitle}})
     results = list(results)
+
+    title_basics.drop_index('primaryTitle_text_startYear_text')     # drop text index
             
     resultString = ''    
     
     if results == []:
         print("No available results, returning to Main Menu.")
         # drop all index at the end
-        title_basics.drop_index("*") 
-        title_ratings.drop_index("*")
-        title_principals.drop_index("*")
-        name_basics.drop_index("*")        
+        # title_basics.drop_index("*") 
+        # title_ratings.drop_index("*")
+        # title_principals.drop_index("*")
+        # name_basics.drop_index("*")        
         return
     
     else:
@@ -174,10 +177,10 @@ def search_for_movies():
         else:
             print("Back to Main Menu.")
             # drop all index at the end
-            title_basics.drop_index("*") 
-            title_ratings.drop_index("*")
-            title_principals.drop_index("*")
-            name_basics.drop_index("*")            
+            # title_basics.drop_index("*") 
+            # title_ratings.drop_index("*")
+            # title_principals.drop_index("*")
+            # name_basics.drop_index("*")            
             return
     
     # find the ratings, and numbVote info
@@ -185,7 +188,7 @@ def search_for_movies():
     tconst = titleDic["tconst"]
     ratings = list(title_ratings.find({"tconst": tconst}))
     
-    # find names of casts/crew by joing using "$lookup"
+    # find names of casts/crew by joining using "$lookup"
     match = {"tconst": tconst}
     stages = [
         {"$match": match},
@@ -241,10 +244,10 @@ def search_for_movies():
     print(aggregatedResultString)
     
     # drop all index at the end
-    title_basics.drop_index("*") 
-    title_ratings.drop_index("*")
-    title_principals.drop_index("*")
-    name_basics.drop_index("*")
+    # title_basics.drop_index("*") 
+    # title_ratings.drop_index("*")
+    # title_principals.drop_index("*")
+    # name_basics.drop_index("*")
 
     return
 
@@ -256,16 +259,16 @@ def search_for_genres():
     under that genre
     '''
     # drop all index before start
-    title_basics.drop_index("*") 
-    title_ratings.drop_index("*")
-    title_principals.drop_index("*")
-    name_basics.drop_index("*")    
+    # title_basics.drop_index("*") 
+    # title_ratings.drop_index("*")
+    # title_principals.drop_index("*")
+    # name_basics.drop_index("*")    
     
-    title_ratings.create_index([("numVotes", pymongo.DESCENDING)])
-    title_ratings.create_index([("avgRating", pymongo.DESCENDING)])
-    title_ratings.create_index([("tconst", pymongo.DESCENDING)])
-    title_basics.create_index([("tconst", pymongo.DESCENDING)])
-    title_basics.create_index([("genres", pymongo.DESCENDING)])
+    # title_ratings.create_index([("numVotes", pymongo.DESCENDING)])
+    # title_ratings.create_index([("avgRating", pymongo.DESCENDING)])
+    # title_ratings.create_index([("tconst", pymongo.DESCENDING)])
+    # title_basics.create_index([("tconst", pymongo.DESCENDING)])
+    # title_basics.create_index([("genres", pymongo.DESCENDING)])
     
     # create text index for genres
     title_basics.create_index([("genres", "text")])
@@ -308,11 +311,12 @@ def search_for_genres():
     if results == []:
         print("No available results, going back to Main Menu")
         # drop all index at the end
-        title_basics.drop_index("*") 
-        title_ratings.drop_index("*")
-        title_principals.drop_index("*")
-        name_basics.drop_index("*")        
-        return;
+        # title_basics.drop_index("*") 
+        # title_ratings.drop_index("*")
+        # title_principals.drop_index("*")
+        # name_basics.drop_index("*")
+        title_basics.drop_index('genres_text')      # drop text index        
+        return
     
     displayString = '\n'
 
@@ -349,10 +353,11 @@ def search_for_genres():
     print(displayString)
     
     # drop all index at the end
-    title_basics.drop_index("*") 
-    title_ratings.drop_index("*")
-    title_principals.drop_index("*")
-    name_basics.drop_index("*")
+    # title_basics.drop_index("*") 
+    # title_ratings.drop_index("*")
+    # title_principals.drop_index("*")
+    # name_basics.drop_index("*")
+    title_basics.drop_index('genres_text')      # drop text index
 
     return
 
@@ -369,21 +374,7 @@ def search_for_members():
     """
     name = input('Cast/crew member name: ').title()     # ask for cast/crew member name
     c = name_basics.aggregate([
-            {
-                '$project': {       # project necessary fields
-                    'nconst': 1,
-                    # 'primaryName': {'$toUpper': '$primaryName'},
-                    'primaryName': 1,
-                    'primaryProfession': 1,
-                    'knownForTitles': 1
-                }
-            },
-
-            {
-                '$match': {     # case insensitive name matching
-                    'primaryName': name
-                }
-            },
+            {'$match': {'primaryName': {'$regex': name, '$options': 'i'}}},     # case insensitive match
 
             {
                 '$lookup': {    # join with title_principals to find all movies in which the member participates
