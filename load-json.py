@@ -1,4 +1,5 @@
 import json
+import pymongo
 from pymongo import MongoClient
 
 port_number = int(input('Server port number: '))    # prompt asking for port number
@@ -43,6 +44,8 @@ def create_collections():
     json2mongo('title.principals.json', title_principals)
     json2mongo('title.ratings.json', title_ratings)
 
+    create_index()
+
     return
 
 
@@ -61,6 +64,34 @@ def json2mongo(input_file, collection):
         data = json.load(f)     # load data from json file
 
         collection.insert_many(data)    # insert data into the collection
+
+    return
+
+
+def create_index():
+    """
+        Create index for faster searches in later stages
+
+        Arguments: None
+
+        Returns: None
+    """
+    # drop all index before start
+    title_basics.drop_index("*") 
+    title_ratings.drop_index("*")
+    title_principals.drop_index("*")
+    name_basics.drop_index("*")
+
+    title_ratings.create_index([("nconst", pymongo.DESCENDING)])
+    title_basics.create_index([("nconst", pymongo.DESCENDING)])
+    title_principals.create_index([("nconst", pymongo.DESCENDING)])
+    name_basics.create_index([("nconst", pymongo.DESCENDING)])
+
+    title_ratings.create_index([("numVotes", pymongo.DESCENDING)])
+    title_ratings.create_index([("avgRating", pymongo.DESCENDING)])
+    title_ratings.create_index([("tconst", pymongo.DESCENDING)])
+    title_basics.create_index([("tconst", pymongo.DESCENDING)])
+    title_basics.create_index([("genres", pymongo.DESCENDING)])
 
     return
 
