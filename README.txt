@@ -7,7 +7,7 @@ CCID 2: wenhan6
 Group member 3: Dylan Clarke
 CCID 3: dclarke
 
-Collaboration: We did not collaborate with anyone else.
+Collaboration: Collaboration limited to comparison of results in Discord group and discussion of possible issues associated with mismatchings.
 
 Acknowledgement:
 The function used in tsv-2-json.py is adapted from: https://www.geeksforgeeks.org/python-tsv-conversion-to-json/
