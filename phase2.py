@@ -336,19 +336,19 @@ def search_for_members():
                 }
             },
 
-            {
-                '$match': {     # filter out dictionaries with job and characters being None at the same time
-                    '$or': [
-                        {
-                            'job': {'$ne': None}
-                        },
+            # {
+            #     '$match': {     # filter out dictionaries with job and characters being None at the same time
+            #         '$or': [
+            #             {
+            #                 'job': {'$ne': None}
+            #             },
 
-                        {
-                            'characters': {'$ne': None}
-                        }
-                    ]
-                }
-            }
+            #             {
+            #                 'characters': {'$ne': None}
+            #             }
+            #         ]
+            #     }
+            # }
         ]
     )
 
@@ -356,7 +356,7 @@ def search_for_members():
     print('\n')
     if r == []:     # account for cases where no result is returned
         print('No matching cast/crew member.')
-        print('\n')
+        print('\n') 
     else:       # output formatting
         cnt = 0
         for i in r:
@@ -368,19 +368,21 @@ def search_for_members():
                 print('primaryProfession: None')
             else:
                 print('primaryProfession: {0}'.format(', '.join(i['primaryProfession'])))
-            print('tconst: {0}'.format(i['tconst']))
-            if i['primaryTitle'] == None:
-                print('primary title: None')
-            else:
-                print('primary title: {0}'.format(i['primaryTitle']))
-            if i['job'] == None:
-                print('job: None')
-            else:
-                print('job: {0}'.format(i['job']))
-            if i['characters'] == None:
-                print('characters: None')
-            else:
-                print('characters: {0}'.format(', '.join(i['characters'])))
+
+            if i['job'] != None or i['characters'] != None:     # we print the following fields only if both are not None
+                print('tconst: {0}'.format(i['tconst']))
+                if i['primaryTitle'] == None:
+                    print('primary title: None')
+                else:
+                    print('primary title: {0}'.format(i['primaryTitle']))
+                if i['job'] == None:
+                    print('job: None')
+                else:
+                    print('job: {0}'.format(i['job']))
+                if i['characters'] == None:
+                    print('characters: None')
+                else:
+                    print('characters: {0}'.format(', '.join(i['characters'])))
 
             print('\n')
             cnt += 1
