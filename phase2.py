@@ -578,7 +578,9 @@ def add_a_member():
 
     category = input("Please enter in a movie category: ")
     ordering = 0 #make it so that its the max ordering listed for the title plus one
+
     doc = title_principals.find({"tconst": existingTitle}).sort("ordering", -1).limit(1)
+    
     for x in doc:
         ordering = (x["ordering"] + 1)
     #print(ordering)
@@ -586,7 +588,7 @@ def add_a_member():
         print("Title not detected in title_principals, ordering shall be 1...")
         ordering = 1
         
-    d = {"tconst": existingTitle, "ordering": ordering, "nconst": existingCast, "category": category, "job": None, "charcters": None}
+    d = {"tconst": existingTitle, "ordering": ordering, "nconst": existingCast, "category": category, "job": None, "characters": None}
     x = title_principals.insert_one(d)
     #print(x)
     #print("If it made it this far without crashing then :)))")
