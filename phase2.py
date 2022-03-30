@@ -454,26 +454,25 @@ def search_for_members():
                 }
             },
 
-            {
-                '$unwind': {    # unwind movies list, preserve empty list
-                    'path': '$movies',
-                    'preserveNullAndEmptyArrays': True
-                }
-            },
+            # {
+            #     '$unwind': {    # unwind movies list, preserve empty list
+            #         'path': '$movies',
+            #         'preserveNullAndEmptyArrays': True
+            #     }
+            # },
 
-            {
-                '$project': {       # project necessary fields
-                    '_id': 0,
-                    'nconst': '$_id',
-                    'primaryName': 1,
-                    'primaryProfession': 1,
-                    'tconst': '$movies.tconst',
-                    'primaryTitle': '$movies.primaryTitle',
-                    'job': '$movies.job',
-                    'characters': '$movies.characters'
-                }
-            }
-
+            # {
+            #     '$project': {       # project necessary fields
+            #         '_id': 0,
+            #         'nconst': '$_id',
+            #         'primaryName': 1,
+            #         'primaryProfession': 1,
+            #         'tconst': '$movies.tconst',
+            #         'primaryTitle': '$movies.primaryTitle',
+            #         'job': '$movies.job',
+            #         'characters': '$movies.characters'
+            #     }
+            # }
         ]
     )
 
@@ -483,34 +482,48 @@ def search_for_members():
         print('No matching cast/crew member.')
         print('\n') 
     else:       # output formatting
-        cnt = 0
+        cnt1 = 0
         for i in r:
-            print('Result {0}'.format(cnt))
+            # print('Result {0}'.format(cnt))
+            print('PERSON #{0}:'.format(cnt1))
+            print('-'*80)
+            cnt1 += 1
 
-            print('nconst: {0}'.format(i['nconst']))
+            print('nconst: {0}'.format(i['_id']))
             print('name: {0}'.format(i['primaryName'].title()))
             if i['primaryProfession'] == None:
                 print('primary profession: None')
             else:
                 print('primary profession: {0}'.format(', '.join(i['primaryProfession'])))
 
-            if 'job' in i.keys() and 'characters' in i.keys():     # check if 'job' and 'characters' fields exist
-                print('tconst: {0}'.format(i['tconst']))
-                if i['primaryTitle'] == None:
-                    print('primary title: None')
-                else:
-                    print('primary title: {0}'.format(i['primaryTitle']))
-                if i['job'] == None:
-                    print('job: None')
-                else:
-                    print('job: {0}'.format(i['job']))
-                if i['characters'] == None:
-                    print('characters: None')
-                else:
-                    print('characters: {0}'.format(', '.join(i['characters'])))
-
             print('\n')
-            cnt += 1
+
+            if i['movies'] == []:
+                print('No movie in which the member had a job or played a character in.')
+            else:
+                num = len(i['movies'])
+                cnt2 = 0
+                for j in i['movies']:
+                    print('Movie #{0}'.format(cnt2))
+                    print('tconst: {0}'.format(j['tconst']))
+                    if j['primaryTitle'] == None:
+                        print('primary title: None')
+                    else:
+                        print('primary title: {0}'.format(j['primaryTitle']))
+                    if j['job'] == None:
+                        print('job: None')
+                    else:
+                        print('job: {0}'.format(j['job']))
+                    if j['characters'] == None:
+                        print('characters: None')
+                    else:
+                        print('characters: {0}'.format(', '.join(j['characters'])))
+
+                    if cnt2 != num - 1:
+                        print('\n')
+                    cnt2 += 1
+            print('-'*80)
+            print('\n')
 
     return
 
