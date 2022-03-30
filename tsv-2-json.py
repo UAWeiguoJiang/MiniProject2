@@ -46,8 +46,6 @@ def tsv2json(input_file,output_file):
         op.write(json.dumps(arr, indent=4))
 
     return
-              
-        
 
 
 def main():
